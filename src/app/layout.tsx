@@ -45,7 +45,7 @@ import { getServerSession } from "next-auth";
 import "./globals.css";
 
 export const metadata = {
-  title: "Polymarket Clone",
+  title: "Real world Prediction",
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
@@ -56,7 +56,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <body className="bg-gray-900 text-gray-100 min-h-screen font-sans">
         <header className="bg-gray-800 p-4 flex justify-between items-center shadow-md">
           <Link href="/" className="text-2xl font-bold text-purple-400">
-            Polymarket Clone
+            Predix
           </Link>
           <nav className="flex gap-4 items-center">
             <Link href="/markets" className="hover:text-purple-300 transition">
