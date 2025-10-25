@@ -28,7 +28,7 @@ export async function GET(req:Request,context:{params:Promise<{id:string}>}) {
             return NextResponse.json({message:"No Market of that id found"},{status:404});
         }
         await redis.set(cacheKey,JSON.stringify(market),{EX:15});
-        return NextResponse.json({market},{status:200});
+        return NextResponse.json(market,{status:200});
     }catch(err){
         console.error(err);
         return NextResponse.json({message:"Something went wrong on our side"},{status:500});

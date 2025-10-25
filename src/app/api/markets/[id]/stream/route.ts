@@ -21,7 +21,10 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
       req.signal.addEventListener("abort", async () => {
         await subscriber.unsubscribe(channel);
         await subscriber.quit();
-        controller.close();
+        try{
+          controller.close();
+        }catch(err){}
+        
       });
     },
   });
