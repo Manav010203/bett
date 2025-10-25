@@ -1,4 +1,5 @@
 import { prisma } from "@/app/lib/db";
+import redis from "@/app/lib/redis";
 import { NextRequest, NextResponse } from "next/server";
 
 
@@ -13,10 +14,14 @@ function computePrices(q: number[], b: number) {
   const total = exp.reduce((a, b) => a + b, 0);
   return exp.map((val) => val / total);
 }
+//redis for pub sub
+const publisher = redis.duplicate();
+
 
 // POST /api/markets/[id]/trade
 export async function POST(req: NextRequest, { params }: { params:Promise<{ id: string }> }) {
   try {
+    if(!publisher.isOpen) await publisher.connect();
     const { outcomeId, amount, type } = await req.json();
 
     if (!outcomeId || !amount || amount <= 0)
@@ -76,6 +81,8 @@ export async function POST(req: NextRequest, { params }: { params:Promise<{ id: 
     });
 
     const prices = computePrices(q, b);
+    
+
 
     const response = {
       marketId: market.id,
@@ -85,6 +92,13 @@ export async function POST(req: NextRequest, { params }: { params:Promise<{ id: 
       })),
       costPaid,
     };
+
+
+    await publisher.publish(`market:update:${market.id}`, JSON.stringify( response));
+    console.log(`Published update for market ${market.id}`);
+
+    await redis.del("market:all");
+    await redis.del(`market:${market.id}`);
 
     return NextResponse.json(response);
   } catch (err) {

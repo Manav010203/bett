@@ -1,8 +1,19 @@
 import { prisma } from "@/app/lib/db";
+import redis from "@/app/lib/redis";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req:NextRequest) {
     try{
+        const cacheKey = "market:all";
+
+        const cached = await redis.get(cacheKey);
+        if(cached){
+            console.log("cached memory has been hit✅")
+            return NextResponse.json(JSON.parse(cached));
+        }
+
+        console.log("Cache miss ❌ — fetching from Postgres...");
+
         const resp = await prisma.market.findMany({
             include:{outcomes:true},
             orderBy:{createdAt:"desc"}
@@ -14,6 +25,7 @@ export async function GET(req:NextRequest) {
                 status:500
             })
         }
+        await redis.set(cacheKey,JSON.stringify(resp),{EX:40})
         return NextResponse.json({
             resp
         },{status:200})
@@ -43,6 +55,8 @@ export async function POST(req:NextResponse) {
         if(!resp){
             return NextResponse.json({message:"unable to register the bet"},{status:500})
         }
+        await redis.del("market:all");
+        await redis.del(`market:${resp.id}`);
         return NextResponse.json({message:"Bet has been registered"},{status:200});
     }catch(err){
         console.error(err);
