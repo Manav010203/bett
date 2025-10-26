@@ -15,7 +15,6 @@ const handler = NextAuth({
     async signIn({ user }) {
       if (!user.email) return false;
 
-      // Check if user already exists
       const existingUser = await prisma.user.findUnique({
         where: { email: user.email }
       });
