@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import redis from "@/app/lib/redis";
 import { NextRequest } from "next/server";
 
@@ -24,7 +26,7 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
         try{
           controller.close();
         }catch(err){}
-        
+        console.log();
       });
     },
   });

@@ -2,7 +2,7 @@ import { prisma } from "@/app/lib/db";
 import redis from "@/app/lib/redis";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const cacheKey = "market:all";
 
